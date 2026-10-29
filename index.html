@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071725"><title>BORDER | 隊員生成ガチャ</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f1f7fc;background:#071725}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#173850 0,#071725 65%);min-height:100vh}.wrap{max-width:780px;margin:auto;padding:24px 16px 70px}.kicker{color:#6be5ed;letter-spacing:.27em;font-size:12px;font-weight:800}h1{font-size:clamp(27px,6vw,42px);letter-spacing:.04em;margin:5px 0}.lead{color:#aec6d4;line-height:1.7;font-size:14px}.panel{background:#0c2233;border:1px solid #2a4b60;border-radius:18px;padding:22px;margin:18px 0;box-shadow:0 12px 35px #0003}button{font:inherit;cursor:pointer}.main{background:#f1b640;color:#122433;font-weight:900;border:0;border-radius:14px;padding:18px;width:100%;font-size:19px;box-shadow:0 5px 0 #b77b21}.main:active{transform:translateY(3px);box-shadow:0 2px 0 #b77b21}.sub{background:transparent;color:#e5f8ff;border:1px solid #57798a;border-radius:10px;padding:12px 18px;font-weight:bold}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}.hidden{display:none}.head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.tag{font-size:11px;letter-spacing:.08em;border:1px solid #4baebe;padding:7px 10px;border-radius:25px;color:#94f0f4}.pos{color:#f5bd54;font-size:25px;font-weight:900;margin:13px 0 2px}.rank{color:#98c3d7;margin-bottom:10px}.total{font-size:55px;font-weight:900;color:#fff;line-height:1}.total small{font-size:14px;color:#acc5d5;font-weight:500}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{border:1px solid #274658;background:#0b1c2b;border-radius:10px;padding:11px}.stathead{display:flex;justify-content:space-between;gap:8px;font-size:13px}.stat strong{color:#f3c66d;font-size:18px}.bar{height:5px;background:#244052;border-radius:5px;margin-top:9px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#23a7be,#a0edf2)}h2{font-size:17px;margin:0 0 14px;border-left:3px solid #f2b641;padding-left:10px}.slots{display:grid;grid-template-columns:1fr 1fr;gap:14px}.slotlist{display:grid;gap:7px}.slot{padding:10px;border-radius:8px;background:#122d40;border:1px solid #29465b;font-size:13px;min-height:42px}.slot span{color:#82a8bb;font-size:11px;margin-right:8px}.side{background:#142d40;border-color:#3f7491}.special{background:linear-gradient(120deg,#3c2b43,#133e48);border:1px solid #a7cb8d;padding:13px;border-radius:12px;line-height:1.6}.muted{color:#97b3c3;font-size:12px}.footer{text-align:center;color:#819eae;font-size:12px;margin-top:20px}.pulse{animation:show .4s ease-out}@keyframes show{from{opacity:.2;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@media(max-width:420px){.panel{padding:16px}.stats{gap:7px}.stat{padding:9px}.slot{font-size:12px}}
+</style></head><body><main class="wrap"><div class="kicker">BORDER PERSONNEL DATABASE</div><h1>隊員生成ガチャ</h1><p class="lead">もし自分がワールドトリガーのボーダー隊員だったら？<br>ポジション・BBF風ステータス・トリガー構成を完全ランダム生成。</p><button class="main" id="roll">隊員を生成する</button><section id="result" class="hidden" aria-live="polite"><div class="panel pulse"><div class="head"><span class="kicker">PERSONNEL FILE / #<span id="idno">0000</span></span><span class="tag" id="rarity">BORDER AGENT</span></div><div class="pos" id="position"></div><div class="rank" id="role"></div><div class="head"><div><div class="total"><span id="total"></span><small> / 総合</small></div><div class="muted">8項目の合計ステータス</div></div><div id="level" class="tag"></div></div></div><div class="panel"><h2>BBF風 パラメータ</h2><div class="stats" id="stats"></div><p class="muted">※数値・評価は本ガチャ独自のファンメイド仕様です。</p></div><div class="panel"><h2>トリガーセット</h2><div class="slots"><div><p class="tag">MAIN</p><div id="mainSlots" class="slotlist"></div></div><div><p class="tag">SUB</p><div id="subSlots" class="slotlist"></div></div></div><p class="muted">各4枠。戦闘スタイルに合わせた構成です。</p></div><div class="panel"><h2>サイドエフェクト判定</h2><div id="sideEffect"></div></div><div class="actions"><button class="sub" id="copy">結果をコピー</button><button class="sub" id="reroll">もう一度ガチャ</button></div></section><p class="footer">非公式ファンメイド作品 / 原作・公式とは無関係です。</p></main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), pick=a=>a[Math.floor(Math.random()*a.length)],rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const positions=[
+{name:'アタッカー',desc:'近距離で勝負する前衛型',base:[5,8,7,9,8,2,5,5],weapons:['弧月','スコーピオン','レイガスト']},
+{name:'ガンナー',desc:'銃型トリガーで弾幕を張る中距離型',base:[7,7,7,6,8,6,5,5],weapons:['アサルトライフル（アステロイド）','ハンドガン（アステロイド）','ショットガン（アステロイド）']},
+{name:'シューター',desc:'自由な弾道を操る中距離型',base:[8,8,6,6,8,6,6,7],weapons:['アステロイド','ハウンド','バイパー']},
+{name:'スナイパー',desc:'長距離から狙撃する後衛型',base:[6,7,5,6,9,10,5,6],weapons:['イーグレット','ライトニング','アイビス']},
+{name:'オールラウンダー',desc:'近距離と中距離を切り替える万能型',base:[7,8,8,8,8,5,6,6],weapons:['弧月','スコーピオン','レイガスト']}
+];
+const labels=['トリオン','攻撃','防御・援護','機動','技術','射程','指揮','特殊戦術'];
+const effects=['優れた聴覚','感情感知','嘘の気配を察知','気配感知','並列思考','瞬間記憶','動体視力の超強化','短期未来視','完全空間把握','触覚による情報感知'];
+function unique(a){return [...new Set(a.filter(Boolean))]}function slots(pool,forced=[]){let out=unique(forced);let rest=pool.filter(x=>!out.includes(x));while(out.length<4&&rest.length) {let p=pick(rest);out.push(p);rest=rest.filter(x=>x!==p)}return out.slice(0,4)}
+function buildTriggers(p){
+let main=[],sub=[];
+const shield='シールド',bag='バッグワーム',opt=['グラスホッパー','カメレオン','テレポーター','スパイダー','ダミービーコン','メテオラ'];
+if(p.name==='アタッカー'){let w=pick(p.weapons);main=slots([w,'旋空','スラスター','スコーピオン','弧月',...opt,'アステロイド'],[w,shield]);sub=slots([shield,bag,'スコーピオン','弧月','アステロイド',...opt],[shield]);}
+if(p.name==='ガンナー'){let w=pick(p.weapons);main=slots([w,'ハウンド（銃）','メテオラ（銃）','バイパー（銃）',shield,...opt],[w,shield]);sub=slots([shield,bag,'ハンドガン（ハウンド）','ハンドガン（アステロイド）',...opt],[shield]);}
+if(p.name==='シューター'){let w=pick(p.weapons);main=slots(['アステロイド','ハウンド','バイパー','メテオラ',shield,'スパイダー'],[w,shield]);sub=slots(['アステロイド','ハウンド','バイパー','メテオラ',shield,bag,'スパイダー','テレポーター'],[shield]);}
+if(p.name==='スナイパー'){let w=pick(p.weapons);main=slots(['イーグレット','ライトニング','アイビス',shield,'ダミービーコン'],[w,shield]);sub=slots([shield,bag,'ライトニング','イーグレット','アイビス','ダミービーコン','スパイダー'],[bag,shield]);}
+if(p.name==='オールラウンダー'){let w=pick(p.weapons);main=slots([w,'アステロイド','ハウンド','バイパー',shield,'旋空','スラスター'],[w,shield]);sub=slots(['アステロイド','ハウンド','ハンドガン（アステロイド）','ハンドガン（ハウンド）',shield,bag,...opt],[shield,'ハンドガン（アステロイド）']);}
+return {main,sub};}
+let last='';
+function roll(){
+const p=pick(positions);
+const talent=pick([{v:-2,label:'育成中の新人'},{v:0,label:'実戦派隊員'},{v:1,label:'有望な隊員'},{v:2,label:'精鋭クラス'},{v:3,label:'トップクラス'}]);
+let stats=p.base.map((n,i)=>Math.max(1,Math.min(i===0?22:15,n+rand(-3,3)+talent.v)));
+if(Math.random()<.025)stats[0]=rand(15,22);
+let total=stats.reduce((a,b)=>a+b,0),tr=buildTriggers(p);
+const hasSE=Math.random()<.03,se=hasSE?pick(effects):null;
+const tier=total>=89?'S級相当の逸材':total>=76?'A級エース級':total>=63?'A級候補':total>=49?'B級主力級':'成長途中';
+$('result').classList.remove('hidden');$('result').classList.remove('pulse');void $('result').offsetWidth;$('result').classList.add('pulse');
+$('idno').textContent=String(rand(1,9999)).padStart(4,'0');$('position').textContent=p.name;$('role').textContent=p.desc+' / '+talent.label;$('total').textContent=total;$('level').textContent=tier;
+$('rarity').textContent=hasSE?'SIDE EFFECT HOLDER':'BORDER AGENT';
+$('stats').innerHTML=labels.map((name,i)=>'<div class="stat"><div class="stathead"><span>'+name+'</span><strong>'+stats[i]+'</strong></div><div class="bar"><div class="fill" style="width:'+Math.min(100,stats[i]/(i===0?22:15)*100)+'%"></div></div></div>').join('');
+for(const key of ['main','sub'])$(key+'Slots').innerHTML=tr[key].map((t,i)=>'<div class="slot"><span>0'+(i+1)+'</span>'+t+'</div>').join('');
+$('sideEffect').innerHTML=hasSE?'<div class="special"><strong>✦ サイドエフェクト発現</strong><div style="font-size:21px;font-weight:900;margin-top:5px">'+se+'</div><div class="muted">約3%の希少抽選</div></div>':'<div class="muted">サイドエフェクトなし（通常隊員）</div>';
+last='【BORDER 隊員生成ガチャ】\nポジション：'+p.name+'\n総合：'+total+'（'+tier+'）\n'+labels.map((x,i)=>x+' '+stats[i]).join(' / ')+'\nMAIN：'+tr.main.join('・')+'\nSUB：'+tr.sub.join('・')+'\nサイドエフェクト：'+(se||'なし');
+}
+$('roll').addEventListener('click',roll);$('reroll').addEventListener('click',()=>{roll();window.scrollTo({top:0,behavior:'smooth'})});$('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(last);$('copy').textContent='コピー完了！';setTimeout(()=>$('copy').textContent='結果をコピー',1200)}catch(e){prompt('結果をコピー',last)}});
+})();
+</script></body></html>
